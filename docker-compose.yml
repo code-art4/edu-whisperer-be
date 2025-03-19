@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - '5000:5000'
+    environment:
+      - MONGO_URI=mongodb+srv://ojotriumph4:74ARalP6JSQFM59C@edu-whisperer-cluster.hfgb5.mongodb.net/?retryWrites=true&w=majority&appName=edu-whisperer-cluster
+      - JWT_SECRET=UQJJ7H1GbMY6j75tWxdwR978tjSXqV4z
+      - NODE_ENV=production
+    restart: always
