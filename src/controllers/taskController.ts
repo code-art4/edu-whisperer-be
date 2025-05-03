@@ -1,7 +1,7 @@
 import { Response, Request } from 'express';
 import TaskSchema from '../models/Task';
 
-const getAllTasks = async (req: Request, res: Response) => {
+export const getAllTasks = async (req: Request, res: Response) => {
     try {
         const Tasks = await TaskSchema.find();
 
@@ -30,7 +30,7 @@ const getAllTasks = async (req: Request, res: Response) => {
     }
 }
 
-const getTask = async (req: Request, res: Response) => {
+export const getTask = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const Task = await TaskSchema.findById(id);
@@ -60,7 +60,7 @@ const getTask = async (req: Request, res: Response) => {
     }
 }
 
-const createTask = async (req: Request, res: Response) => {
+export const createTask = async (req: Request, res: Response) => {
     const { title, description, subject, categories, dueDate, timeToFinish } = req.body;
     try {
         const Task = await TaskSchema.create({
@@ -90,7 +90,7 @@ const createTask = async (req: Request, res: Response) => {
     }
 }
 
-const updateTask = async (req: Request, res: Response) => {
+export const updateTask = async (req: Request, res: Response) => {
     const Task = req.body;
     const { id } = req.params;
 
@@ -119,5 +119,3 @@ const updateTask = async (req: Request, res: Response) => {
         })
     }
 }
-
-module.exports = { getAllTasks, getTask, createTask, updateTask }

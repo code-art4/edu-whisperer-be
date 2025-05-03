@@ -2,7 +2,7 @@ import { Response, Request } from 'express';
 import studyPlan from '../models/studyPlan'
 import { ResponseStatus, IResponse } from '../utils/response'
 
-const createStudyPlan = async (req: Request, res: Response) => {
+export const createStudyPlan = async (req: Request, res: Response) => {
     const { title, subject, startDate, endDate, studyGoal, category } = req.body
 
     if (!title || !subject || !startDate || !endDate || !studyGoal || !category) {
@@ -53,7 +53,7 @@ const createStudyPlan = async (req: Request, res: Response) => {
     }
 }
 
-const getStudyPlans = async (req: Request, res: Response) => {
+export const getStudyPlans = async (req: Request, res: Response) => {
     try {
         const StudyPlans = await studyPlan.find();
 
@@ -90,7 +90,7 @@ const getStudyPlans = async (req: Request, res: Response) => {
     }
 }
 
-const getStudyPlan = async (req: Request, res: Response) => {
+export const getStudyPlan = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const StudyPlans = await studyPlan.findById(id);
@@ -128,7 +128,7 @@ const getStudyPlan = async (req: Request, res: Response) => {
     }
 }
 
-const updateStudyPlan = async (req: Request, res: Response) => {
+export const updateStudyPlan = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const StudyPlans = await studyPlan.findByIdAndUpdate(id);

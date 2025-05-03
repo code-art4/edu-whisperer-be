@@ -16,9 +16,11 @@ app.use(cors());
 // Routes
 const authRoutes = require("./routes/authRoutes")
 const taskRoutes = require("./routes/taskRoutes")
+const updateRoutes = require("./routes/updatesRoutes")
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/studyPlans", updateRoutes);
 
 // Error Handling
 // import { errorHandler } from "./middlewares/errorMiddleware";
