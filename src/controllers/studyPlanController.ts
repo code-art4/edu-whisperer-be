@@ -1,6 +1,7 @@
 import { Response, Request } from 'express';
 import studyPlan from '../models/studyPlan'
 import { ResponseStatus, IResponse } from '../utils/response'
+import { Session } from './../utils';
 
 export const createStudyPlan = async (req: Request, res: Response) => {
     const { title, subject, startDate, endDate, studyGoal, category } = req.body
@@ -9,7 +10,7 @@ export const createStudyPlan = async (req: Request, res: Response) => {
         const InvalidInputResponse: IResponse = {
             statusCode: 500,
             status: "failed",
-            message: "All the fields are required",
+            message: "All fields are required",
             res
         }
 
@@ -17,7 +18,7 @@ export const createStudyPlan = async (req: Request, res: Response) => {
     }
 
     try {
-        const StudyPlan = await studyPlan.create(req.body)
+        const StudyPlan = await studyPlan.create({ ...req.body, session: Session() })
 
         if (!StudyPlan) {
             const UncreatedStudyPlanResponse: IResponse = {
