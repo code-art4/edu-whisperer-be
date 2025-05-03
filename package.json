@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
-    "build": "rm -rf dist && tsc",
+    "build": "tsc",
     "start": "node dist/app.js",
     "docker:build": "docker build -t eduwhisperer-backend .",
     "docker:run": "docker run -p 5000:5000 --env-file .env.local eduwhisperer-backend"
@@ -28,6 +28,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "yarn": "^1.22.22"
   }
 }

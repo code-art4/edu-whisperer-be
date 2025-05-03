@@ -7,6 +7,7 @@ export interface IUser extends Document {
     avatar?: string;
     role: "user" | "admin";
     isGuest: boolean;
+    token: "string"
 }
 
 const UserSchema: Schema = new Schema({

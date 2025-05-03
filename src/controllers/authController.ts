@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User, { IUser } from "../models/User";
 import { generateToken } from "../config/auth";
+import { ObjectId } from 'mongodb';
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -28,15 +29,15 @@ export const register = async (req: Request, res: Response) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            token: generateToken(user._id),
+            token: generateToken(user._id as ObjectId),
         });
     } catch (error) {
         console.error("Registration Error:", error);
-        res.status(500).json({ message: "Server Error", error: error.message });
+        res.status(500).json({ message: "Server Error", error: error })
     }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const loginWithEmail = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({ email });
@@ -45,7 +46,7 @@ export const login = async (req: Request, res: Response) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-        res.json({ user, token: generateToken(user._id) });
+        res.json({ user, token: generateToken(user._id as ObjectId) });
     } catch (error) {
         res.status(500).json({ message: "Server error" });
     }
