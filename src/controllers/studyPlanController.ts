@@ -53,4 +53,117 @@ const createStudyPlan = async (req: Request, res: Response) => {
     }
 }
 
-module.exports = { createStudyPlan }
+const getStudyPlans = async (req: Request, res: Response) => {
+    try {
+        const StudyPlans = await studyPlan.find();
+
+        if (!StudyPlans) {
+            const noStudyPlanResponse: IResponse = {
+                statusCode: 500,
+                status: "failed",
+                message: "An error occurred while trying to load study plans",
+                res
+            }
+
+            ResponseStatus(noStudyPlanResponse)
+        }
+
+        const studyPlanResponse: IResponse = {
+            statusCode: 200,
+            status: "success",
+            message: "Successfully fetched study plans",
+            data: StudyPlans,
+            res
+        }
+
+        ResponseStatus(studyPlanResponse);
+
+    } catch (error) {
+        const errorResponse: IResponse = {
+            statusCode: 500,
+            status: "failed",
+            message: "An error occurred while trying to load study plans",
+            res
+        }
+
+        ResponseStatus(errorResponse);
+    }
+}
+
+const getStudyPlan = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const StudyPlans = await studyPlan.findById(id);
+
+        if (!StudyPlans) {
+            const noStudyPlanResponse: IResponse = {
+                statusCode: 500,
+                status: "failed",
+                message: "An error occurred while trying to load study plan",
+                res
+            }
+
+            ResponseStatus(noStudyPlanResponse)
+        }
+
+        const studyPlanResponse: IResponse = {
+            statusCode: 200,
+            status: "success",
+            message: "Successfully fetched study plan",
+            data: StudyPlans,
+            res
+        }
+
+        ResponseStatus(studyPlanResponse);
+
+    } catch (error) {
+        const errorResponse: IResponse = {
+            statusCode: 500,
+            status: "failed",
+            message: "An error occurred while trying to load study plan",
+            res
+        }
+
+        ResponseStatus(errorResponse);
+    }
+}
+
+const updateStudyPlan = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const StudyPlans = await studyPlan.findByIdAndUpdate(id);
+
+        if (!StudyPlans) {
+            const noStudyPlanResponse: IResponse = {
+                statusCode: 500,
+                status: "failed",
+                message: "An error occurred while trying to update study plan",
+                res
+            }
+
+            ResponseStatus(noStudyPlanResponse)
+        }
+
+        const studyPlanResponse: IResponse = {
+            statusCode: 200,
+            status: "success",
+            message: "Successfully updated study plan",
+            data: StudyPlans,
+            res
+        }
+
+        ResponseStatus(studyPlanResponse);
+
+    } catch (error) {
+        const errorResponse: IResponse = {
+            statusCode: 500,
+            status: "failed",
+            message: "An error occurred while trying to update study plan",
+            res
+        }
+
+        ResponseStatus(errorResponse);
+    }
+}
+
+module.exports = { createStudyPlan, getStudyPlans, getStudyPlan, updateStudyPlan }
