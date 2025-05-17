@@ -8,6 +8,7 @@ export interface ITask extends Document {
     dueDate: Date;
     timeToFinish: string;
     completed: boolean;
+    priority: 'high' | 'medium' | 'low';
 }
 
 const TaskSchema: Schema = new Schema({
@@ -17,6 +18,7 @@ const TaskSchema: Schema = new Schema({
     categories: [{ type: String, required: true }],
     dueDate: { type: Date, required: true },
     timeToFinish: { type: String, required: true },
+    priority: { type: String, required: true },
     completed: { type: Boolean, default: false },
 });
 

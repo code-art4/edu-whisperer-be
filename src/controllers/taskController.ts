@@ -1,5 +1,5 @@
 import { Response, Request } from 'express';
-import TaskSchema from '../models/Task';
+import TaskSchema from '../models/task';
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
@@ -8,14 +8,14 @@ export const getAllTasks = async (req: Request, res: Response) => {
         if (!Tasks || Tasks.length === 0) {
             return res.status(204).json({
                 message: "No records found",
-                body: Tasks,
+                data: Tasks,
                 status: "success"
             })
         }
 
         res.status(200).json({
             message: "Tasks returned successfully",
-            body: Tasks,
+            data: Tasks,
             status: "success"
         })
 
@@ -38,14 +38,14 @@ export const getTask = async (req: Request, res: Response) => {
         if (!Task) {
             return res.status(204).json({
                 message: "No records found",
-                body: Task,
+                data: Task,
                 status: "success"
             })
         }
 
         res.status(200).json({
             message: "Tasks returned successfully",
-            body: Task,
+            data: Task,
             status: "success"
         })
 
@@ -111,7 +111,6 @@ export const updateTask = async (req: Request, res: Response) => {
 
 
     } catch (error) {
-
         res.status(500).json({
             message: "An error occurred while updating task",
             error: error,

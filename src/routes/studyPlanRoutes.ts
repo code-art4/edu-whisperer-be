@@ -6,6 +6,6 @@ const router = express.Router()
 router.get('/', getStudyPlans);
 router.post('/create', createStudyPlan);
 router.get('/studyPlan/:id', getStudyPlan);
-router.put('/studyPlan/:id', updateStudyPlan);
+router.put('/studyPlan/update/:id', updateStudyPlan);
 
 module.exports = router

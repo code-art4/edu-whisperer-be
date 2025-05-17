@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import User, { IUser } from "../models/User";
+import User, { IUser } from "../models/user";
 import { generateToken } from "../config/auth";
 import { ObjectId } from 'mongodb';
 
