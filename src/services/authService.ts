@@ -72,15 +72,28 @@ export const createUser = async ({ user, res }: IUserService) => {
     };
 
     // Validate required fields (name, email, password)
-    if (!IsUserInputValid(user)) ApiResponse(invalidInputResponse);
+    if (!IsUserInputValid(user)) {
+        return ApiResponse(invalidInputResponse)
+    };
 
     // Validate password meets complexity requirements
-    if (!isPasswordValid(password)) ApiResponse(invalidPasswordResponse);
+    if (!isPasswordValid(password)) {
+        return ApiResponse(invalidPasswordResponse)
+    };
 
     // Check if email already exists in database
     const confirmIfUserExists = await UserModel.findOne({ email });
 
-    if (confirmIfUserExists) ApiResponse(userCreatedResponse);
+    if (confirmIfUserExists) {
+        return ApiResponse(userExistsResponse)
+    };
+
+    // Check if email already exists in database
+    const userCreated = await UserModel.create({ name, email, password });
+
+    if (userCreated) {
+        return ApiResponse(userCreatedResponse)
+    };
 
     ApiResponse({
         res,
