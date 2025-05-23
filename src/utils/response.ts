@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { Error } from 'mongoose';
+import { ApiResponseParams } from '../types/auth';
 
 export interface IResponse {
     res: Response
@@ -27,3 +28,43 @@ export const ResponseStatus = ({ res, message, data, status = "success", statusC
         data
     })
 }
+
+export const ApiResponse = ({
+    res,
+    message,
+    status = "success",
+    statusCode = status === "success" ? 200 : 400,
+    data = null,
+    error = null,
+    metadata = null,
+    token
+}: ApiResponseParams) => {
+
+    // Determine status code based on error type
+    if (status === "error" && error?.type && !statusCode) {
+        switch (error.type) {
+            case "VALIDATION_ERROR":
+                statusCode = 422;
+                break;
+            case "UNAUTHORIZED":
+                statusCode = 401;
+                break;
+            case "NOT_FOUND":
+                statusCode = 404;
+                break;
+            // Add more cases as needed
+            default:
+                statusCode = 400; // Bad Request as fallback
+        }
+    }
+
+    return res.status(statusCode).json({
+        status,
+        statusCode, // Include in response
+        message, // User-friendly message
+        ...(status === "success"
+            ? { data, ...(metadata && { metadata }) }
+            : { error } // Developer-facing details
+        ),
+    });
+};
