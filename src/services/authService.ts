@@ -1,9 +1,10 @@
+import { ObjectId } from 'mongodb';
+import bcrypt from "bcryptjs";
 import UserModel from '../models/user'
 import { isPasswordValid, IsUserInputValid } from '../utils/auth';
 import { ApiResponseParams, IUserService } from '../types/auth';
 import { ApiResponse } from '../utils/response'
 import { generateToken } from '../config/auth';
-import { ObjectId } from 'mongodb';
 
 export const createUser = async ({ user, res }: IUserService) => {
     const { name, email, password } = user;
@@ -89,12 +90,87 @@ export const createUser = async ({ user, res }: IUserService) => {
         return ApiResponse(userExistsResponse)
     };
 
+    // encrypt the password
+    const salt = bcrypt.genSaltSync(12);
+    const hash = bcrypt.hashSync(password, salt);
+
     // Check if email already exists in database
-    const userCreated = await UserModel.create({ name, email, password });
+    const userCreated = await UserModel.create({ name, email, password: hash });
 
     if (userCreated) {
         return ApiResponse(userCreatedResponse)
     };
+
+    ApiResponse({
+        res,
+        status: "error",
+        statusCode: 500,
+        message: "A server error occurred",
+        error: {
+            type: "INTERNAL_SERVER_ERROR"
+        }
+    });
+
+};
+
+export const authenticateUser = async ({ user, res }: IUserService) => {
+    const { email, password } = user;
+
+    // Response for missing/invalid required fields
+    const invalidInputResponse: ApiResponseParams = {
+        res,
+        status: "error",
+        statusCode: 422,
+        message: "Required fields missing. Please provide: email, and password.",
+        error: {
+            type: "VALIDATION_ERROR",
+            details: [
+                { field: "email" },
+                { field: "password" }
+            ]
+        }
+    };
+
+    const authenticatedUserResponse: ApiResponseParams = {
+        res,
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        returnToken: true,
+        token: {
+            access_token: generateToken(user?._id as ObjectId),
+            expires_in: 3600
+        }
+    };
+
+    // Response for missing/invalid required fields
+    const passwordMismatchResponse: ApiResponseParams = {
+        res,
+        status: "error",
+        statusCode: 422,
+        message: "Incorrect email or password. Please try again",
+        error: {
+            type: "VALIDATION_ERROR",
+            details: [
+                { field: "email" },
+                { field: "password" }
+            ]
+        }
+    };
+
+    // Validate required fields (email, password)
+    const authenticateUser = true
+    if (!IsUserInputValid(user, authenticateUser)) {
+        return ApiResponse(invalidInputResponse)
+    };
+
+    // Check if email already exists in database
+    const existingUser = await UserModel.findOne({ email });
+
+    const isMatch = await bcrypt.compare(password, existingUser?.password || '');
+    if (!isMatch) return ApiResponse(passwordMismatchResponse)
+
+    if (existingUser && isMatch) return ApiResponse(authenticatedUserResponse)
 
     ApiResponse({
         res,

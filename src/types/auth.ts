@@ -7,7 +7,7 @@ export interface IisPasswordValid {
 
 export interface IUser {
     _id?: ObjectId,
-    name: string,
+    name?: string,
     email: string,
     password: string
 }
@@ -35,5 +35,5 @@ export interface ApiResponseParams {
 }
 
 export interface IisUserInputValid {
-    ({ name, email, password }: IUser): boolean
+    (user: IUser, authenticateUser?: boolean): boolean
 }
