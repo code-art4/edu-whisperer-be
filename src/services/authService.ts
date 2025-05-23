@@ -62,9 +62,10 @@ export const createUser = async ({ user, res }: IUserService) => {
 
     const userCreatedResponse: ApiResponseParams = {
         res,
-        status: "error",
+        status: "success",
         statusCode: 201,
         message: "Your account has been created successfully!",
+        returnToken: true,
         token: {
             access_token: generateToken(user?._id as ObjectId),
             expires_in: 3600

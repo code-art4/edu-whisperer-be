@@ -37,7 +37,8 @@ export const ApiResponse = ({
     data = null,
     error = null,
     metadata = null,
-    token
+    token,
+    returnToken
 }: ApiResponseParams) => {
 
     // Determine status code based on error type
@@ -60,11 +61,11 @@ export const ApiResponse = ({
 
     return res.status(statusCode).json({
         status,
-        statusCode, // Include in response
-        message, // User-friendly message
-        ...(status === "success"
+        statusCode,
+        message,
+        ...(!returnToken ? (status === "success"
             ? { data, ...(metadata && { metadata }) }
-            : { error } // Developer-facing details
+            : { error }) : { token }
         ),
     });
 };

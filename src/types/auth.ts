@@ -30,7 +30,8 @@ export interface ApiResponseParams {
     data?: any;
     error?: ApiError | null;
     metadata?: any;
-    token?: { access_token: any; expires_in: number; }
+    token?: { access_token: any; expires_in: number };
+    returnToken?: boolean
 }
 
 export interface IisUserInputValid {
