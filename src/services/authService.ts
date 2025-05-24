@@ -1,3 +1,4 @@
+import { Response } from 'express';
 import { ObjectId } from 'mongodb';
 import bcrypt from "bcryptjs";
 import UserModel from '../models/user'
@@ -61,18 +62,6 @@ export const createUser = async ({ user, res }: IUserService) => {
         }
     };
 
-    const userCreatedResponse: ApiResponseParams = {
-        res,
-        status: "success",
-        statusCode: 201,
-        message: "Your account has been created successfully!",
-        returnToken: true,
-        token: {
-            access_token: generateToken(user?._id as ObjectId),
-            expires_in: 3600
-        }
-    };
-
     // Validate required fields (name, email, password)
     if (!IsUserInputValid(user)) {
         return ApiResponse(invalidInputResponse)
@@ -97,6 +86,18 @@ export const createUser = async ({ user, res }: IUserService) => {
     // Check if email already exists in database
     const userCreated = await UserModel.create({ name, email, password: hash });
 
+    const userCreatedResponse: ApiResponseParams = {
+        res,
+        status: "success",
+        statusCode: 201,
+        message: "Your account has been created successfully!",
+        returnToken: true,
+        token: {
+            access_token: generateToken(userCreated?._id as ObjectId),
+            expires_in: 3600
+        }
+    };
+
     if (userCreated) {
         return ApiResponse(userCreatedResponse)
     };
@@ -113,7 +114,7 @@ export const createUser = async ({ user, res }: IUserService) => {
 
 };
 
-export const authenticateUser = async ({ user, res }: IUserService) => {
+export const authenticateUserWithEmail = async ({ user, res }: IUserService) => {
     const { email, password } = user;
 
     // Response for missing/invalid required fields
@@ -128,18 +129,6 @@ export const authenticateUser = async ({ user, res }: IUserService) => {
                 { field: "email" },
                 { field: "password" }
             ]
-        }
-    };
-
-    const authenticatedUserResponse: ApiResponseParams = {
-        res,
-        status: "success",
-        statusCode: 200,
-        message: "Login successful",
-        returnToken: true,
-        token: {
-            access_token: generateToken(user?._id as ObjectId),
-            expires_in: 3600
         }
     };
 
@@ -159,8 +148,9 @@ export const authenticateUser = async ({ user, res }: IUserService) => {
     };
 
     // Validate required fields (email, password)
-    const authenticateUser = true
-    if (!IsUserInputValid(user, authenticateUser)) {
+    const loginUser = true
+
+    if (!IsUserInputValid(user, loginUser)) {
         return ApiResponse(invalidInputResponse)
     };
 
@@ -170,7 +160,52 @@ export const authenticateUser = async ({ user, res }: IUserService) => {
     const isMatch = await bcrypt.compare(password, existingUser?.password || '');
     if (!isMatch) return ApiResponse(passwordMismatchResponse)
 
+    const authenticatedUserResponse: ApiResponseParams = {
+        res,
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        returnToken: true,
+        token: {
+            access_token: generateToken(existingUser?._id as ObjectId),
+            expires_in: 3600
+        }
+    };
+
+
     if (existingUser && isMatch) return ApiResponse(authenticatedUserResponse)
+
+    ApiResponse({
+        res,
+        status: "error",
+        statusCode: 500,
+        message: "A server error occurred",
+        error: {
+            type: "INTERNAL_SERVER_ERROR"
+        }
+    });
+
+};
+
+export const authenticateGuest = async (res: Response) => {
+    // Check if email already exists in database
+    const guestUser = await UserModel.findOne({ email: "eduguestwhisperer@gmail.com" });
+
+    const authenticatedUserResponse: ApiResponseParams = {
+        res,
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        returnToken: true,
+        token: {
+            access_token: generateToken(guestUser?._id as ObjectId),
+            expires_in: 3600
+        }
+    };
+
+    if (guestUser?.isGuest === true) {
+        return ApiResponse(authenticatedUserResponse)
+    }
 
     ApiResponse({
         res,

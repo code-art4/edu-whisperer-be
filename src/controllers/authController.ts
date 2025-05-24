@@ -1,10 +1,5 @@
 import { Request, Response } from "express";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import User, { IUser } from "../models/user";
-import { generateToken } from "../config/auth";
-import { ObjectId } from 'mongodb';
-import { createUser, authenticateUser } from '../services/authService';
+import { createUser, authenticateUserWithEmail, authenticateGuest } from '../services/authService';
 
 export const register = async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
@@ -13,5 +8,14 @@ export const register = async (req: Request, res: Response) => {
 
 export const loginWithEmail = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    authenticateUser({ user: { email, password }, res })
+    authenticateUserWithEmail({ user: { email, password }, res })
 };
+
+export const loginAsGuest = async (req: Request, res: Response) => {
+    authenticateGuest(res)
+};
+
+// export const loginWithGoogle = async (req: Request, res: Response) => {
+//     const { email, password } = req.body;
+//     authenticateUserWithEmail({ user: { email, password }, res })
+// };

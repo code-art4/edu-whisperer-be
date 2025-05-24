@@ -10,10 +10,10 @@ export const isPasswordValid: IisPasswordValid = (password) => {
     return false
 }
 
-export const IsUserInputValid: IisUserInputValid = ({ name, email, password }, authenticateUser = false) => {
-    if (!authenticateUser) {
+export const IsUserInputValid: IisUserInputValid = ({ name, email, password }, login = false) => {
+    if (!login) {
         if (!name || !email || !password) return false
-    } else if (authenticateUser) {
+    } else if (login) {
         if (!email || !password) return false
     }
 
