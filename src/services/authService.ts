@@ -189,7 +189,7 @@ export const authenticateUserWithEmail = async ({ user, res }: IUserService) => 
 
 export const authenticateGuest = async (res: Response) => {
     // Check if email already exists in database
-    const guestUser = await UserModel.findOne({ email: "eduguestwhisperer@gmail.com" });
+    const guestUser = await UserModel.findOne({ email: process.env.GUEST_MAIL, isGuest: true });
 
     const authenticatedUserResponse: ApiResponseParams = {
         res,
@@ -203,7 +203,7 @@ export const authenticateGuest = async (res: Response) => {
         }
     };
 
-    if (guestUser?.isGuest === true) {
+    if (guestUser) {
         return ApiResponse(authenticatedUserResponse)
     }
 

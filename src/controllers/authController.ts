@@ -15,6 +15,7 @@ export const loginAsGuest = async (req: Request, res: Response) => {
     authenticateGuest(res)
 };
 
+// requires card for the google oauth2 secret key
 // export const loginWithGoogle = async (req: Request, res: Response) => {
 //     const { email, password } = req.body;
 //     authenticateUserWithEmail({ user: { email, password }, res })
