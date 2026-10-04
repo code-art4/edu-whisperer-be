@@ -1,17 +1,18 @@
-import { Response } from 'express';
-import { ObjectId } from 'mongodb';
-import bcrypt from "bcryptjs";
-import UserModel from '../models/User'
-import { isPasswordValid, IsUserInputValid } from '../utils/auth';
-import { ApiResponseParams, IUserService } from '../types/auth';
-import { ApiResponse } from '../utils/response'
-import { generateToken } from '../config/auth';
-
-export const createUser = async ({ user, res }: IUserService) => {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authenticateGuest = exports.authenticateUserWithEmail = exports.createUser = void 0;
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const User_1 = __importDefault(require("../models/User"));
+const auth_1 = require("../utils/auth");
+const response_1 = require("../utils/response");
+const auth_2 = require("../config/auth");
+const createUser = async ({ user, res }) => {
     const { name, email, password } = user;
-
     // Response for missing/invalid required fields
-    const invalidInputResponse: ApiResponseParams = {
+    const invalidInputResponse = {
         res,
         status: "error",
         statusCode: 422,
@@ -25,9 +26,8 @@ export const createUser = async ({ user, res }: IUserService) => {
             ]
         }
     };
-
     // Response for password policy violations
-    const invalidPasswordResponse: ApiResponseParams = {
+    const invalidPasswordResponse = {
         res,
         status: "error",
         statusCode: 422,
@@ -47,9 +47,8 @@ export const createUser = async ({ user, res }: IUserService) => {
             ]
         }
     };
-
     // Response when email already exists in system     
-    const userExistsResponse: ApiResponseParams = {
+    const userExistsResponse = {
         res,
         status: "error",
         statusCode: 409,
@@ -61,48 +60,43 @@ export const createUser = async ({ user, res }: IUserService) => {
             },
         }
     };
-
     // Validate required fields (name, email, password)
-    if (!IsUserInputValid(user)) {
-        return ApiResponse(invalidInputResponse)
-    };
-
+    if (!(0, auth_1.IsUserInputValid)(user)) {
+        return (0, response_1.ApiResponse)(invalidInputResponse);
+    }
+    ;
     // Validate password meets complexity requirements
-    if (!isPasswordValid(password)) {
-        return ApiResponse(invalidPasswordResponse)
-    };
-
+    if (!(0, auth_1.isPasswordValid)(password)) {
+        return (0, response_1.ApiResponse)(invalidPasswordResponse);
+    }
+    ;
     // Check if email already exists in database
-    const confirmIfUserExists = await UserModel.findOne({ email });
-
+    const confirmIfUserExists = await User_1.default.findOne({ email });
     if (confirmIfUserExists) {
-        return ApiResponse(userExistsResponse)
-    };
-
+        return (0, response_1.ApiResponse)(userExistsResponse);
+    }
+    ;
     // encrypt the password
-    const salt = bcrypt.genSaltSync(12);
-    const hash = bcrypt.hashSync(password, salt);
-
+    const salt = bcryptjs_1.default.genSaltSync(12);
+    const hash = bcryptjs_1.default.hashSync(password, salt);
     // Check if email already exists in database
-    const userCreated = await UserModel.create({ name, email, password: hash });
-
-    const userCreatedResponse: ApiResponseParams = {
+    const userCreated = await User_1.default.create({ name, email, password: hash });
+    const userCreatedResponse = {
         res,
         status: "success",
         statusCode: 201,
         message: "Your account has been created successfully!",
         returnToken: true,
         token: {
-            access_token: generateToken(userCreated?._id as ObjectId),
+            access_token: (0, auth_2.generateToken)(userCreated?._id),
             expires_in: 3600
         }
     };
-
     if (userCreated) {
-        return ApiResponse(userCreatedResponse)
-    };
-
-    ApiResponse({
+        return (0, response_1.ApiResponse)(userCreatedResponse);
+    }
+    ;
+    (0, response_1.ApiResponse)({
         res,
         status: "error",
         statusCode: 500,
@@ -111,14 +105,12 @@ export const createUser = async ({ user, res }: IUserService) => {
             type: "INTERNAL_SERVER_ERROR"
         }
     });
-
 };
-
-export const authenticateUserWithEmail = async ({ user, res }: IUserService) => {
+exports.createUser = createUser;
+const authenticateUserWithEmail = async ({ user, res }) => {
     const { email, password } = user;
-
     // Response for missing/invalid required fields
-    const invalidInputResponse: ApiResponseParams = {
+    const invalidInputResponse = {
         res,
         status: "error",
         statusCode: 422,
@@ -131,9 +123,8 @@ export const authenticateUserWithEmail = async ({ user, res }: IUserService) => 
             ]
         }
     };
-
     // Response for missing/invalid required fields
-    const passwordMismatchResponse: ApiResponseParams = {
+    const passwordMismatchResponse = {
         res,
         status: "error",
         statusCode: 422,
@@ -146,68 +137,31 @@ export const authenticateUserWithEmail = async ({ user, res }: IUserService) => 
             ]
         }
     };
-
     // Validate required fields (email, password)
-    const loginUser = true
-
-    if (!IsUserInputValid(user, loginUser)) {
-        return ApiResponse(invalidInputResponse)
-    };
-
-    // Check if email already exists in database
-    const existingUser = await UserModel.findOne({ email });
-
-    const isMatch = await bcrypt.compare(password, existingUser?.password || '');
-    if (!isMatch) return ApiResponse(passwordMismatchResponse)
-
-    const authenticatedUserResponse: ApiResponseParams = {
-        res,
-        status: "success",
-        statusCode: 200,
-        message: "Login successful",
-        returnToken: true,
-        token: {
-            access_token: generateToken(existingUser?._id as ObjectId),
-            expires_in: 3600
-        }
-    };
-
-
-    if (existingUser && isMatch) return ApiResponse(authenticatedUserResponse)
-
-    ApiResponse({
-        res,
-        status: "error",
-        statusCode: 500,
-        message: "A server error occurred",
-        error: {
-            type: "INTERNAL_SERVER_ERROR"
-        }
-    });
-
-};
-
-export const authenticateGuest = async (res: Response) => {
-    // Check if email already exists in database
-    const guestUser = await UserModel.findOne({ email: process.env.GUEST_MAIL, isGuest: true });
-
-    const authenticatedUserResponse: ApiResponseParams = {
-        res,
-        status: "success",
-        statusCode: 200,
-        message: "Login successful",
-        returnToken: true,
-        token: {
-            access_token: generateToken(guestUser?._id as ObjectId),
-            expires_in: 3600
-        }
-    };
-
-    if (guestUser) {
-        return ApiResponse(authenticatedUserResponse)
+    const loginUser = true;
+    if (!(0, auth_1.IsUserInputValid)(user, loginUser)) {
+        return (0, response_1.ApiResponse)(invalidInputResponse);
     }
-
-    ApiResponse({
+    ;
+    // Check if email already exists in database
+    const existingUser = await User_1.default.findOne({ email });
+    const isMatch = await bcryptjs_1.default.compare(password, existingUser?.password || '');
+    if (!isMatch)
+        return (0, response_1.ApiResponse)(passwordMismatchResponse);
+    const authenticatedUserResponse = {
+        res,
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        returnToken: true,
+        token: {
+            access_token: (0, auth_2.generateToken)(existingUser?._id),
+            expires_in: 3600
+        }
+    };
+    if (existingUser && isMatch)
+        return (0, response_1.ApiResponse)(authenticatedUserResponse);
+    (0, response_1.ApiResponse)({
         res,
         status: "error",
         statusCode: 500,
@@ -216,5 +170,33 @@ export const authenticateGuest = async (res: Response) => {
             type: "INTERNAL_SERVER_ERROR"
         }
     });
-
 };
+exports.authenticateUserWithEmail = authenticateUserWithEmail;
+const authenticateGuest = async (res) => {
+    // Check if email already exists in database
+    const guestUser = await User_1.default.findOne({ email: process.env.GUEST_MAIL, isGuest: true });
+    const authenticatedUserResponse = {
+        res,
+        status: "success",
+        statusCode: 200,
+        message: "Login successful",
+        returnToken: true,
+        token: {
+            access_token: (0, auth_2.generateToken)(guestUser?._id),
+            expires_in: 3600
+        }
+    };
+    if (guestUser) {
+        return (0, response_1.ApiResponse)(authenticatedUserResponse);
+    }
+    (0, response_1.ApiResponse)({
+        res,
+        status: "error",
+        statusCode: 500,
+        message: "A server error occurred",
+        error: {
+            type: "INTERNAL_SERVER_ERROR"
+        }
+    });
+};
+exports.authenticateGuest = authenticateGuest;
