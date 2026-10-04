@@ -10,7 +10,7 @@ connectDB();
 const app: Application = express();
 
 const corsOption = {
-    origin: ['http://localhost:8080', 'https://edu-whisperer-be.onrender.com'],
+    origin: ['http://localhost:8080', 'https://edu-whisperer.vercel.app'],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
 }
